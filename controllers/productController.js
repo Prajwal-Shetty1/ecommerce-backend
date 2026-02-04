@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModels.js";
-//Function to Add Product
+//Function to Add Product-it's for admin panel
 const addProduct = async (req, res) => {
   try {
     const { name, description, price, category,subCategory, sizes, bestseller } = req.body;
@@ -46,17 +46,36 @@ await product.save();
 
 //Function to List Product
 const listProducts =async(req,res) => {
-    
+    try {
+        const products = await productModel.find({});
+        res.json({success:true,products})
+    } catch (error) {
+        console.log(error);
+        res.json({success:false,message:error.message});
+    }
 }
 
 //Function to Remove Product
 const removeProduct =async(req,res) => {
-    
+    try {
+        await productModel.findByIdAndDelete(req.body.id);
+        res.json({success:true,message:"Product Deleted"})
+    } catch (error) {
+        console.log(error);
+        res.json({success:false,message:error.message});
+    }
 }
 
 //Function for Single Product Info
 const singleProduct =async(req,res) => {
-    
+    try {
+        const {productId} = req.body;
+        const product = await productModel.findById(productId);
+        res.json({success:true,product});
+    } catch (error) {
+        console.log(error);
+        res.json({success:false,message:error.message});
+    }
 }
 
 export {addProduct,listProducts,removeProduct,singleProduct};
