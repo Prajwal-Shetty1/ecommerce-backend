@@ -1,6 +1,24 @@
+import orderModel from "../models/orderModels";
+import userModel from "../models/userModels";
 
 //Placing Orders using COD(cash on delivery)
 const placeOrder = async (req,res) => {
+    try {
+        const {userId,items,amount,address} = req.body;
+        const orderData = {
+            userId,items,amount,address,
+            paymentMethod:"COD",payment:false,date:Date.now()
+        }
+        const newOrder = new orderModel(orderData);
+        //To save it in DB
+        await newOrder.save();
+        //once order is placed the cart data is been cleared 
+        await userModel.findByIdAndUpdate(userId,{cartData:{}});
+        res.json({success:true,message:"OrderPlaced!"})
+    } catch (error) {
+        console.log(error);
+        res.json({success:false,message:error.message})
+    }
     
 }
 
