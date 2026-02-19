@@ -10,8 +10,8 @@ const authUser = (req, res, next) => {
   try {
     const token_decode = jwt.verify(token, process.env.JWT_SECRET);
 
-    //console.log("TOKEN DECODE:", token_decode);
-
+    //console.log("TOKEN FROM HEADER:", token);
+//console.log("DECODED TOKEN:", token_decode);
     // 🔴 IMPORTANT FIX
     req.userId = token_decode._id || token_decode.id;
 
