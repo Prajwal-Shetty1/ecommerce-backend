@@ -4,10 +4,10 @@ import userModel from "../models/userModels.js";
 //Placing Orders using COD(cash on delivery)
 const placeOrder = async (req, res) => {
     try {
-        const { items, amount, address } = req.body;
+        const { item, amount, address } = req.body;
         const userId = req.userId;
         const orderData = {
-            userId, items, amount, address,
+            userId, item, amount, address,
             paymentMethod: "COD", payment: false, date: Date.now()
         }
         const newOrder = new orderModel(orderData);
@@ -41,7 +41,18 @@ const allOrders = async (req, res) => {
 
 //User order data for Frontend
 const userOrder = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const orders = await orderModel.find({ userId });
 
+        //console.log("ORDERS FROM DB:", orders);
+
+        res.json({ success: true, orders });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
 }
 
 //update Order status for Admin Panel
