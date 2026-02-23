@@ -1,6 +1,6 @@
 
 import express from "express";
-import {placeOrder,placeOrderStripe,placeOrderRazorpay,allOrders,userOrder,updateStatus} from "../controllers/orderControllers.js";
+import {placeOrder,placeOrderStripe,placeOrderRazorpay,allOrders,userOrder,updateStatus,verifyStripe} from "../controllers/orderControllers.js";
 import adminAuth from "../middleware/adminAuth.js";
 import authUser from "../middleware/cartAuth.js";
 
@@ -18,5 +18,8 @@ orderRouter.post('/razorpay',authUser,placeOrderRazorpay);
 
 //User Features (to showcase orders in frontend)
 orderRouter.post('/userOrders',authUser,userOrder);
+
+//Verify Stripe Payment
+orderRouter.post('/verifyStripe',authUser,verifyStripe);
 
 export default orderRouter;

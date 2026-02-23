@@ -33,10 +33,10 @@ const placeOrder = async (req, res) => {
 //Placing Orders using Stripe Method
 const placeOrderStripe = async (req, res) => {
     try {
-         const { item, amount, address } = req.body;
+        const { item, amount, address } = req.body;
         const userId = req.userId;
-        const {origin} = req.headers;
-         const orderData = {
+        const { origin } = req.headers;
+        const orderData = {
             userId, item, amount, address,
             paymentMethod: "Stripe", payment: false, date: Date.now()
         }
@@ -44,36 +44,56 @@ const placeOrderStripe = async (req, res) => {
         //To save it in DB
         await newOrder.save();
         const line_items = item.map((item) => ({
-            price_data:{
-                currency:currency,
-                product_data:{name:item.name},
-                unit_amount:item.price*100 
+            price_data: {
+                currency: currency,
+                product_data: { name: item.name },
+                unit_amount: item.price * 100
             },
-            quantity:item.quantity,
+            quantity: item.quantity,
         }))
         line_items.push({
-            price_data:{
-                currency:currency,
-                product_data:{name:'Delivery Charge'},
-                unit_amount:deliveryCharge*100 
+            price_data: {
+                currency: currency,
+                product_data: { name: 'Delivery Charge' },
+                unit_amount: deliveryCharge * 100
             },
-            quantity:1,
+            quantity: 1,
         })
         const session = await stripe.checkout.sessions.create({
-            line_items: line_items, 
+            line_items: line_items,
             payment_method_types: ['card'],
             //successUrl-when payment success & cancelUrl-when payment fails redirected to cancel
-            success_url:`${origin}/verify?success=true&orderId=${newOrder._id}`,
-            cancel_url:`${origin}/verify?success=false&orderId=${newOrder._id}`,
-            mode:'payment'
+            success_url: `${origin}/verify?success=true&orderId=${newOrder._id}`,
+            cancel_url: `${origin}/verify?success=false&orderId=${newOrder._id}`,
+            mode: 'payment'
         })
-        res.json({success:true,session_url:session.url})
+        res.json({ success: true, session_url: session.url })
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+
+}
+
+//Verify Stripe payment
+const verifyStripe = async (req, res) => {
+    const { orderId, success } = req.body;
+    const userId = req.userId;
+    try {
+        if(success === "true"){
+            await orderModel.findByIdAndUpdate(orderId,{payment:true});
+            await userModel.findByIdAndUpdate(userId, { cartData: {} });
+            res.json({success:true})
+        }else{
+            await orderModel.findByIdAndDelete(orderId);
+            res.json({success:false})
+        }
         
     } catch (error) {
         console.log(error);
-        res.json({success:false,message:error.message});
+        res.json({success:false,message:error.message})
     }
-
 }
 
 //Placing Orders using Razorpay Method
@@ -124,4 +144,4 @@ const updateStatus = async (req, res) => {
 
 }
 
-export { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrder, updateStatus };
+export { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrder, updateStatus ,verifyStripe};
