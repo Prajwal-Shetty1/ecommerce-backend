@@ -1,7 +1,7 @@
 import orderModel from "../models/orderModels.js";
 import userModel from "../models/userModels.js";
 import Stripe from 'stripe';
-
+import Razorpay from "razorpay";
 //Gateway initialize
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //Global Variables
@@ -81,23 +81,54 @@ const verifyStripe = async (req, res) => {
     const { orderId, success } = req.body;
     const userId = req.userId;
     try {
-        if(success === "true"){
-            await orderModel.findByIdAndUpdate(orderId,{payment:true});
+        if (success === "true") {
+            await orderModel.findByIdAndUpdate(orderId, { payment: true });
             await userModel.findByIdAndUpdate(userId, { cartData: {} });
-            res.json({success:true})
-        }else{
+            res.json({ success: true })
+        } else {
             await orderModel.findByIdAndDelete(orderId);
-            res.json({success:false})
+            res.json({ success: false })
         }
-        
+
     } catch (error) {
         console.log(error);
-        res.json({success:false,message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 //Placing Orders using Razorpay Method
+const razorpayInstance = new Razorpay({
+    key_id:process.env.RAZORPAY_KEY_ID,
+    key_secret:process.env.RAZORPAY_KEY_SECRET
+})
+
+
+
 const placeOrderRazorpay = async (req, res) => {
+    try {
+        const { item, amount, address } = req.body;
+        const userId = req.userId;
+        const orderData = {
+            userId, item, amount, address,
+            paymentMethod: "razorpay", payment: false, date: Date.now()
+        }
+        const newOrder = new orderModel(orderData);
+        //To save it in DB
+        await newOrder.save();
+        const options={
+            amount:amount*100,
+            currency:currency.toUpperCase(),
+            receipt:newOrder._id.toString()
+
+        }
+        const order = await razorpayInstance.orders.create(options);
+        res.json({ success: true, order });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message })
+
+    }
 
 }
 
@@ -144,4 +175,4 @@ const updateStatus = async (req, res) => {
 
 }
 
-export { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrder, updateStatus ,verifyStripe};
+export { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrder, updateStatus, verifyStripe };
