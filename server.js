@@ -23,7 +23,8 @@ app.use('/api/user',userRouter);
 app.use('/api/product',productRouter);
 app.use('/api/cart',cartRouter);
 app.use('/api/order',orderRouter)
-
+console.log("KEY ID:", process.env.RAZORPAY_KEY_ID);
+console.log("KEY SECRET:", process.env.RAZORPAY_KEY_SECRET);
 app.get('/', (req, res) => {
   res.send("API working!...")
 })
