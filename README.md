@@ -1,6 +1,6 @@
 # ⚙️ Backend : E-Commerce API
 
-[![User Panel](https://img.shields.io/badge/User-Panel-green?style=for-the-badge\&logo=vercel)](https://mern-ecommerce-puce.vercel.app)
+[![User Panel](https://img.shields.io/badge/User-Panel-green?style=for-the-badge\&logo=vercel)](https://ecommerce-frontend-red-sigma.vercel.app/)
 [![Admin Panel](https://img.shields.io/badge/Admin-Panel-black?style=for-the-badge\&logo=vercel)](https://ecommerce-admin-lemon-three.vercel.app)
 
 ---
